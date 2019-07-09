@@ -11,9 +11,14 @@ if(!file.exists(DLas)){download.file(DLfrom, DLas, mode="wb")}
 if(!file.exists(FileName)){unzip(DLas,files=NULL,exdir=".")}
 HPC<-read.csv(FileName,header=TRUE,sep=";",na.strings="?")
 
+#Cleaning Data and Removing extraneous data
+
 HPC$Date<-as.Date(HPC$Date,"%d/%m/%Y")
 HPC<-HPC[HPC$Date=="2007-02-01"|HPC$Date=="2007-02-02",]
 HPC$DateTime<-strptime(paste(HPC$Date, HPC$Time, sep =" "),format="%Y-%m-%d %H:%M:%S")
+HPC$Global_active_power<-as.numeric(as.character(HPC$Global_active_power))
+
+#Creating plot
 
 par(mfrow=c(2,2),mar=c(4,4,2,1),oma=c(0,0,2,0))
 with(HPC,{
@@ -25,7 +30,13 @@ with(HPC,{
   legend("topright",col=c("black","red","blue"),legend=c("Sub_metering_1","Sub_metering_2","Sub_metering_3"),lty=1,lwd=1)
   plot(DateTime,Global_reactive_power,type="l",xlab="",ylab="Global Reactive Power(kilowatts)")
 })
+
+#copying plot to png
+
 dev.copy(png,file="plot4.png", height=480, width=480, units="px")
 dev.off()
+
+#Releasing system resources and resetting Working Directory
+
 rm(list=ls())
 setwd("..")
